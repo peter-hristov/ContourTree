@@ -11,5 +11,5 @@ analyze:
 	clang++ --analyze -Xanalyzer -analyzer-output=text -Wc++11-extensions -std=c++14 ./src/*.cpp
 
 format:
-	clang-format ./src/*.cpp ./src/inc/*.h -i
+	clang-format ./src/*.cpp ./src/inc/*.h ./src/inc/*.hpp -i
 
