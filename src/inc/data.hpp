@@ -65,6 +65,46 @@ void printEdges(const std::vector<std::pair<int, int>> &data)
     std::cout << std::endl;
 }
 
+/**
+ * Write tree grid to STDIN
+ */
+void printTree(const std::vector<std::vector<int>> &data)
+{
+    for (int i = 0; i < data.size(); i++)
+    {
+        std::cout << std::endl << std::setw(4) << i << " - ";
+        for (const auto element : data[i])
+        {
+            std::cout << std::setw(4) << element;
+        }
+    }
+
+    std::cout << std::endl;
+}
+
+/**
+ * Write tree grid to STDIN
+ */
+void printExtremeTree(const std::vector<std::vector<int>> &data)
+{
+    for (int i = 0; i < data.size(); i++)
+    {
+        if (2 == data[i].size())
+        {
+            continue;
+        }
+
+        std::cout << std::endl << std::setw(4) << i << " - ";
+
+        for (const auto element : data[i])
+        {
+            std::cout << std::setw(4) << element;
+        }
+    }
+
+    std::cout << std::endl;
+}
+
 std::vector<std::pair<int, int>> getAdjacent(int i, int j, int w, int h)
 {
     std::vector<std::pair<int, int>> n;

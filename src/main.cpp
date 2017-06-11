@@ -13,67 +13,49 @@ using namespace std;
 pair<int, int> findCurrent(int current, const vector<vector<int>> &);
 vector<vector<int>> sortVertices(vector<vector<int>>);
 
-vector<pair<int, int>> getJoinTree(const vector<vector<int>> &);
-vector<pair<int, int>> getSplitTree(const vector<vector<int>> &);
+vector<vector<int>> getJoinTree(const vector<vector<int>> &);
+vector<vector<int>> getSplitTree(const vector<vector<int>> &);
 
-vector<int> getNeighbours(vector<pair<int, int>> edges, int vertex)
+int getUpDegree(const vector<vector<int>> &tree, int vertex)
 {
-    vector<int> neighbours;
-
-    for (auto edge : edges)
+    int counter = 0;
+    for (auto n : tree[vertex])
     {
-        if (edge.first == vertex || edge.second == vertex)
+        if (vertex < n)
         {
-            neighbours.push_back(edge.second);
+            counter++;
         }
     }
 
-    return neighbours;
+    return counter;
 }
 
-int getDegree(vector<pair<int, int>> edges, int vertex)
+int getDownDegree(const vector<vector<int>> &tree, int vertex)
 {
-    int degree = 0;
-
-    for (auto edge : edges)
-    {
-        if (edge.first == vertex)
-        {
-            degree++;
-        }
-    }
-
-    return degree;
+    return tree[vertex].size() - getUpDegree(tree, vertex);
 }
 
-vector<int> getLeaves(const vector<pair<int, int>> &joinTree, const vector<pair<int, int>> &splitTree, int n)
+void contractVertex(vector<vector<int>> &tree, int vertex)
 {
-    vector<int> leaves;
-    for (int i = 0; i < n; i++)
+    // Remove from adj list of neighbours
+    for (auto i : tree[vertex])
     {
-        if (1 == getDegree(joinTree, i) + getDegree(splitTree, i))
+        tree[i].erase(std::remove(tree[i].begin(), tree[i].end(), vertex), tree[i].end());
+    }
+
+    // Add all neighbours to each other
+    for (auto i : tree[vertex])
+    {
+        for (auto j : tree[vertex])
         {
-            leaves.push_back(i);
+            if (i != j && find(tree[i].begin(), tree[i].end(), j) == tree[i].end())
+            {
+                tree[i].push_back(j);
+            }
         }
     }
 
-    return leaves;
-}
-
-vector<pair<int, int>> removeVertex(const vector<pair<int, int>> &tree, int vertex)
-{
-    vector<pair<int, int>> edges;
-
-    for (auto edge: tree)
-    {
-        if (edge.first != vertex && edge.second != vertex)
-        {
-            edges.push_back(edge);
-        }
-    }
-
-
-    return edges;
+    tree[vertex].clear();
 }
 
 int main()
@@ -81,76 +63,107 @@ int main()
     vector<vector<int>> data = Data::read();
     vector<vector<int>> vertices = sortVertices(data);
 
-    Data::print(data);
-    Data::print(vertices);
-
     auto joinTree = getJoinTree(vertices);
     auto splitTree = getSplitTree(vertices);
 
-    Data::printEdges(joinTree);
-    Data::printEdges(splitTree);
+    cout << "\nData : ";
+    Data::print(data);
+    cout << "\nVertices : ";
+    Data::print(vertices);
 
-    auto leaves = getLeaves(joinTree, splitTree, data.size() * data[0].size());
+    // cout << "\nJoin Tree :";
+    // Data::printTree(joinTree);
+    // cout << "\nSplit Tree :";
+    // Data::printTree(splitTree);
 
-    //cout << "Leaves" << endl << endl;
-    //for (auto l : leaves)
-    //{
-        //cout << l << " ";
-    //}
-    //
-    vector<pair<int, int>> contourTree;
+    vector<int> q;
 
-    while (leaves.size() > 1)
+    for (int i = 0; i < joinTree.size(); i++)
     {
-        // Pop element
-        auto i = *leaves.begin();
-        leaves.erase(leaves.begin());
-        cout << "---------------------------------------" << endl;
-        cout << "Popped    : " << i << endl;
-        cout << "Up Deg    : " << getDegree(joinTree, i) << endl;
-        cout << "Down Deg  : " << getDegree(splitTree, i) << endl;
-
-        cout << "Queue     : ";
-        for(auto i: leaves)
+        if (1 == getUpDegree(joinTree, i) + getDownDegree(splitTree, i))
         {
-            cout << i << " ";
+            q.push_back(i);
         }
+    }
 
-        cout << endl;
+    vector<vector<int>> contourTree(joinTree.size());
+    vector<bool> used(joinTree.size(), false);
 
-        int j;
-        if (0 == getDegree(joinTree, i))
+    while (!q.empty())
+    {
+        // Pop head
+        int i = q[0];
+        q.erase(q.begin());
+
+        cout << "\n---------------------------" << endl;
+
+        cout << "Queue       : ";
+        for (auto a : q)
         {
-            cout << "UP   LEAF" << endl;
-            j = *(getNeighbours(joinTree, i).begin());
+            cout << a << " ";
+        }
+        cout << "\nPopped      : " << i << endl;
+        cout << "Up          : " << getUpDegree(joinTree, i) << endl;
+        cout << "Down        : " << getDownDegree(splitTree, i) << " ";
+
+        int j = -1;
+
+        if (0 == getUpDegree(joinTree, i) && 1 == getDownDegree(splitTree, i))
+        {
+            cout << "+ Up   leaf" << endl;
+            j = joinTree[i][0];
+            if (joinTree[i].size() > 1) cout << "PROBLEM!";
+        }
+        else if (1 == getUpDegree(joinTree, i) && 0 == getDownDegree(splitTree, i))
+        {
+            cout << "- Down leaf" << endl;
+            j = splitTree[i][0];
+
+            if (splitTree[i].size() > 1) cout << "PROBLEM!";
         }
         else
         {
-            cout << "DOWN LEAF" << endl;
-            j = *(getNeighbours(splitTree, i).begin());
+            cout << "PROBO";
         }
 
-        cout << "Neighbour : " << j << endl << endl;
-        contourTree.push_back(make_pair(i, j));
+        cout << "Neighbour   : " << j << endl;
 
+        contourTree[i].push_back(j);
+        contourTree[j].push_back(i);
 
-        // Remove vertex from trees
-        joinTree = removeVertex(joinTree, i);
-        splitTree = removeVertex(splitTree, i);
+        contractVertex(joinTree, i);
+        contractVertex(splitTree, i);
 
-        cout << "\n\nJoint Tree : ";
-        Data::printEdges(joinTree);
-        cout << "\n\nSplit Tree : ";
-        Data::printEdges(splitTree);
-        cout << "\n\nContour Tree : ";
-        Data::printEdges(contourTree);
+        cout << "\nJoin Tree :";
+        Data::printTree(joinTree);
+        cout << "\nSplit Tree :";
+        Data::printTree(splitTree);
 
-        // Add to queue if it is not in there
-        leaves.push_back(j);
+        Data::printTree(contourTree);
+
+        // If the queue is empty add new leaves
+        if (q.empty())
+        {
+            for (int i = 0; i < joinTree.size(); i++)
+            {
+                if (1 == getUpDegree(joinTree, i) + getDownDegree(splitTree, i))
+                {
+                    q.push_back(i);
+                }
+            }
+        }
+
+            //q.push_back(j);
+            //used[j] = true;
+        //}
     }
 
-    // cout << endl << "Here : " << getDegree(joinTree, 15);
-    // cout << endl << "Here : " << getNeighbours(joinTree, 15)[2];
+    // sort(contourTree.begin(), contourTree.end(), [](pair<int, int> a, pair<int, int> b){ return a.first < b.first; });
+
+    // Data::printEdges(contourTree);
+    //
+    Data::printTree(contourTree);
+    // Data::printExtremeTree(contourTree);
 
     return 0;
 }
@@ -203,7 +216,7 @@ vector<vector<int>> sortVertices(vector<vector<int>> data)
     return vertices;
 }
 
-vector<pair<int, int>> getJoinTree(const vector<vector<int>> &vertices)
+vector<vector<int>> getJoinTree(const vector<vector<int>> &vertices)
 {
     DisjointSet ds;
     vector<int> lowestVertex;
@@ -214,8 +227,7 @@ vector<pair<int, int>> getJoinTree(const vector<vector<int>> &vertices)
         lowestVertex.push_back(i);
     }
 
-    vector<vector<int>> joinTree(vertices.size(), std::vector<int>(vertices[0].size(), -1));
-    vector<pair<int, int>> joinEdges;
+    vector<vector<int>> joinTree(vertices.size() * vertices[0].size());
 
     for (int i = vertices.size() * vertices[0].size() - 1; i >= 0; i--)
     {
@@ -235,10 +247,8 @@ vector<pair<int, int>> getJoinTree(const vector<vector<int>> &vertices)
 
             ds.merge(i, j);
 
-            // Add to join tree
-            // auto b = findCurrent(lowestVertex[ds.find(j)], vertices);
-            // joinTree[b.first][b.second] = i;
-            joinEdges.push_back(make_pair(i, lowestVertex[ds.find(j)]));
+            joinTree[i].push_back(lowestVertex[ds.find(j)]);
+            joinTree[lowestVertex[ds.find(j)]].push_back(i);
 
             // Lowest vertex in the whole component is now i
             lowestVertex[ds.find(j)] = i;
@@ -246,10 +256,10 @@ vector<pair<int, int>> getJoinTree(const vector<vector<int>> &vertices)
     }
 
     // return joinTree;
-    return joinEdges;
+    return joinTree;
 }
 
-vector<pair<int, int>> getSplitTree(const vector<vector<int>> &vertices)
+vector<vector<int>> getSplitTree(const vector<vector<int>> &vertices)
 {
     DisjointSet ds;
     vector<int> highestVertex;
@@ -260,8 +270,7 @@ vector<pair<int, int>> getSplitTree(const vector<vector<int>> &vertices)
         highestVertex.push_back(i);
     }
 
-    vector<vector<int>> splitTree(vertices.size(), std::vector<int>(vertices[0].size(), -1));
-    vector<pair<int, int>> splitEdges;
+    vector<vector<int>> splitTree(vertices.size() * vertices[0].size());
 
     for (int i = 0; i < vertices.size() * vertices[0].size(); i++)
     {
@@ -281,15 +290,13 @@ vector<pair<int, int>> getSplitTree(const vector<vector<int>> &vertices)
 
             ds.merge(i, j);
 
-            // Add to split tree
-            // auto b = findCurrent(highestVertex[ds.find(j)], vertices);
-            // splitTree[b.first][b.second] = i;
-            splitEdges.push_back(make_pair(i, highestVertex[ds.find(j)]));
+            splitTree[i].push_back(highestVertex[ds.find(j)]);
+            splitTree[highestVertex[ds.find(j)]].push_back(i);
 
             // Highest vertex in the whole component is now i
             highestVertex[ds.find(j)] = i;
         }
     }
 
-    return splitEdges;
+    return splitTree;
 }
