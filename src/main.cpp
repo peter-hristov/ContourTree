@@ -37,7 +37,7 @@ int getIndex(vector<vector<int>> vertices, vector<vector<int>> contourTree, int 
 {
     pair<int, int> p = findCurrent(i, vertices);
 
-    return (p.first * vertices.size() + p.second);
+    return (p.first * vertices[0].size() + p.second);
 }
 
 int getUpDegree(const vector<vector<int>> &tree, int vertex)
@@ -88,14 +88,38 @@ int main()
 
     vector<vector<int>> data = Data::read();
     vector<vector<int>> vertices = sortVertices(data);
-
-    auto joinTree = getJoinTree(vertices);
-    auto splitTree = getSplitTree(vertices);
+    
 
     //cout << "\nData : ";
     //Data::print(data);
     //cout << "\nVertices : ";
     //Data::print(vertices);
+
+    auto joinTree = getJoinTree(vertices);
+
+    auto splitTree = getSplitTree(vertices);
+
+    //Data::print(splitTree);
+
+    //long low = getIndex(vertices, contourTree, e.first);
+
+    //std::cout << std::endl << std::endl << splitTree.size() << " " << (*splitTree.begin()).size();
+
+    for (const auto row : splitTree)
+    {
+        for (const auto element : row)
+        {
+            long a = element;
+            long blq = getIndex(vertices, vertices, a);
+            printf("%9ld", blq);
+        }
+        std::cout << std::endl;
+    }
+
+    return 0;
+
+    //auto splitTree = getSplitTree(vertices);
+
 
     // cout << "\nJoin Tree :";
     // Data::printTree(joinTree);
@@ -265,7 +289,7 @@ vector<vector<int>> sortVertices(vector<vector<int>> data)
             }
 
             // @TODO this is the hack
-            vertices[max.first][max.second] = x * data.size() + y;
+            vertices[max.first][max.second] = x * data[0].size() + y;
             data[max.first][max.second] = std::numeric_limits<int>::max();
         }
     }
@@ -327,7 +351,8 @@ vector<vector<int>> getSplitTree(const vector<vector<int>> &vertices)
         highestVertex.push_back(i);
     }
 
-    vector<vector<int>> splitTree(vertices.size() * vertices[0].size());
+    //vector<vector<int>> splitTree(vertices.size() * vertices[0].size());
+    vector<vector<int>> splitTree(vertices.size(), vector<int>(vertices[0].size()));
 
     for (int i = 0; i < vertices.size() * vertices[0].size(); i++)
     {
@@ -347,8 +372,12 @@ vector<vector<int>> getSplitTree(const vector<vector<int>> &vertices)
 
             ds.merge(i, j);
 
-            splitTree[i].push_back(highestVertex[ds.find(j)]);
-            splitTree[highestVertex[ds.find(j)]].push_back(i);
+            //splitTree[i].push_back(highestVertex[ds.find(j)]);
+            //splitTree[highestVertex[ds.find(j)]].push_back(i);
+            
+            pair<int, int> pos = findCurrent(highestVertex[ds.find(j)], vertices);
+
+            splitTree[pos.first][pos.second] = i;
 
             // Highest vertex in the whole component is now i
             highestVertex[ds.find(j)] = i;

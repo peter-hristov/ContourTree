@@ -42,7 +42,10 @@ void print(const std::vector<std::vector<int>> &data)
         std::cout << std::endl;
         for (const auto element : row)
         {
-            std::cout << std::setw(4) << element;
+            //std::cout << std::setw(4) << element;
+
+            long a = element;
+            printf("%9ld", a);
         }
     }
 
@@ -124,7 +127,7 @@ void printExtremeTree(const std::vector<std::vector<int>> &data)
     std::cout << std::endl;
 }
 
-std::vector<std::pair<int, int>> getAdjacent(int i, int j, int w, int h)
+std::vector<std::pair<int, int>> getAdjacent(int i, int j, int h, int w)
 {
     std::vector<std::pair<int, int>> n;
 
