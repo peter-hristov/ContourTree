@@ -4,6 +4,7 @@
 #include <iostream>
 #include <limits>
 #include <vector>
+#include <assert.h>
 
 #include "./inc/data.hpp"
 #include "./inc/disjoint_set.hpp"
@@ -60,6 +61,8 @@ void contractVertex(vector<vector<int>> &tree, int vertex)
 
 int main()
 {
+    bool debug = false;
+
     vector<vector<int>> data = Data::read();
     vector<vector<int>> vertices = sortVertices(data);
 
@@ -78,6 +81,7 @@ int main()
 
     vector<int> q;
 
+    // Queue in all leaves
     for (int i = 0; i < joinTree.size(); i++)
     {
         if (1 == getUpDegree(joinTree, i) + getDownDegree(splitTree, i))
@@ -87,7 +91,6 @@ int main()
     }
 
     vector<vector<int>> contourTree(joinTree.size());
-    vector<bool> used(joinTree.size(), false);
 
     while (!q.empty())
     {
@@ -95,51 +98,68 @@ int main()
         int i = q[0];
         q.erase(q.begin());
 
-        cout << "\n---------------------------" << endl;
-
-        cout << "Queue       : ";
-        for (auto a : q)
+        if (debug)
         {
-            cout << a << " ";
+            cout << "\n---------------------------" << endl;
+
+            cout << "Queue       : ";
+            for (auto a : q)
+            {
+                cout << a << " ";
+            }
+            cout << "\nPopped      : " << i << endl;
+            cout << "Up          : " << getUpDegree(joinTree, i) << endl;
+            cout << "Down        : " << getDownDegree(splitTree, i) << " ";
         }
-        cout << "\nPopped      : " << i << endl;
-        cout << "Up          : " << getUpDegree(joinTree, i) << endl;
-        cout << "Down        : " << getDownDegree(splitTree, i) << " ";
 
         int j = -1;
 
         if (0 == getUpDegree(joinTree, i) && 1 == getDownDegree(splitTree, i))
         {
-            cout << "+ Up   leaf" << endl;
+            assert(joinTree[i].size() == 1);
+
+            if (debug) { cout << "+ Up   leaf" << endl; }
             j = joinTree[i][0];
-            if (joinTree[i].size() > 1) cout << "PROBLEM!";
+
         }
         else if (1 == getUpDegree(joinTree, i) && 0 == getDownDegree(splitTree, i))
         {
-            cout << "- Down leaf" << endl;
-            j = splitTree[i][0];
+            assert(splitTree[i].size() == 1);
 
-            if (splitTree[i].size() > 1) cout << "PROBLEM!";
+            if (debug) { cout << "- Down leaf" << endl; }
+            j = splitTree[i][0];
         }
         else
         {
-            cout << "PROBO";
+            assert(false);
         }
 
-        cout << "Neighbour   : " << j << endl;
+        if (debug) { cout << "Neighbour   : " << j << endl; }
 
+        // @TODO remove this hack
+        if (j == -1)
+        {
+            break;
+        }
+
+        // Add edge to controur tree
         contourTree[i].push_back(j);
         contourTree[j].push_back(i);
 
+        // Contract used leaf
         contractVertex(joinTree, i);
         contractVertex(splitTree, i);
 
-        cout << "\nJoin Tree :";
-        Data::printTree(joinTree);
-        cout << "\nSplit Tree :";
-        Data::printTree(splitTree);
+        if (debug)
+        {
+            cout << "\nJoin Tree :";
+            Data::printTree(joinTree);
+            cout << "\nSplit Tree :";
+            Data::printTree(splitTree);
+            cout << "\nContour Tree :";
+            Data::printTree(contourTree);
+        }
 
-        Data::printTree(contourTree);
 
         // If the queue is empty add new leaves
         if (q.empty())
@@ -152,22 +172,17 @@ int main()
                 }
             }
         }
-
-            //q.push_back(j);
-            //used[j] = true;
-        //}
     }
 
-    // sort(contourTree.begin(), contourTree.end(), [](pair<int, int> a, pair<int, int> b){ return a.first < b.first; });
-
-    // Data::printEdges(contourTree);
-    //
     Data::printTree(contourTree);
-    // Data::printExtremeTree(contourTree);
+    Data::printExtremeTree(contourTree);
 
     return 0;
 }
 
+/**
+ * Maps 1D indices to the 2D grid
+ */
 pair<int, int> findCurrent(int current, const vector<vector<int>> &data)
 {
     for (int i = 0; i < data.size(); i++)
