@@ -5,6 +5,9 @@
 #include <limits>
 #include <vector>
 #include <assert.h>
+#include <set>
+#include <stdlib.h>     /* srand, rand */
+#include <time.h>       /* time */
 
 #include "./inc/data.hpp"
 #include "./inc/disjoint_set.hpp"
@@ -16,6 +19,26 @@ vector<vector<int>> sortVertices(vector<vector<int>>);
 
 vector<vector<int>> getJoinTree(const vector<vector<int>> &);
 vector<vector<int>> getSplitTree(const vector<vector<int>> &);
+
+bool isThere(vector<pair<int, int>> edges, pair<int, int> p)
+{
+    for (auto e: edges)
+    {
+        if ((e.first == p.first && e.second == p.second) || (e.first == p.second && e.second == p.first))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+int getIndex(vector<vector<int>> vertices, vector<vector<int>> contourTree, int i)
+{
+    pair<int, int> p = findCurrent(i, vertices);
+
+    return (p.first * vertices.size() + p.second);
+}
 
 int getUpDegree(const vector<vector<int>> &tree, int vertex)
 {
@@ -69,10 +92,10 @@ int main()
     auto joinTree = getJoinTree(vertices);
     auto splitTree = getSplitTree(vertices);
 
-    cout << "\nData : ";
-    Data::print(data);
-    cout << "\nVertices : ";
-    Data::print(vertices);
+    //cout << "\nData : ";
+    //Data::print(data);
+    //cout << "\nVertices : ";
+    //Data::print(vertices);
 
     // cout << "\nJoin Tree :";
     // Data::printTree(joinTree);
@@ -129,18 +152,16 @@ int main()
             if (debug) { cout << "- Down leaf" << endl; }
             j = splitTree[i][0];
         }
+        else if (0 == getUpDegree(joinTree, i) && 0 == getDownDegree(splitTree, i))
+        {
+            break;
+        }
         else
         {
             assert(false);
         }
 
         if (debug) { cout << "Neighbour   : " << j << endl; }
-
-        // @TODO remove this hack
-        if (j == -1)
-        {
-            break;
-        }
 
         // Add edge to controur tree
         contourTree[i].push_back(j);
@@ -160,22 +181,43 @@ int main()
             Data::printTree(contourTree);
         }
 
-
-        // If the queue is empty add new leaves
-        if (q.empty())
+        if (1 == getUpDegree(joinTree, j) + getDownDegree(splitTree, j))
         {
-            for (int i = 0; i < joinTree.size(); i++)
+            q.push_back(j);
+        }
+    }
+
+    // Remove augmentation
+    for (int i = 0 ; i < contourTree.size() ; i++)
+    {
+        if (1 == getUpDegree(contourTree, i) && 1 == getDownDegree(contourTree, i))
+        {
+            contractVertex(contourTree, i);
+        }
+    }
+
+    //cout << "\n\nContour Tree : " << endl;
+    //Data::printTreeNonempty(contourTree);
+
+    vector<pair<int, int>> edges;
+    for (int i = 0; i < contourTree.size(); i++)
+    {
+        for(auto j: contourTree[i])
+        {
+            if (!isThere(edges, make_pair(i, j)))
             {
-                if (1 == getUpDegree(joinTree, i) + getDownDegree(splitTree, i))
-                {
-                    q.push_back(i);
-                }
+                edges.push_back(make_pair(i, j));
             }
         }
     }
 
-    Data::printTree(contourTree);
-    Data::printExtremeTree(contourTree);
+
+    for (const auto e : edges)
+    {
+        long low = getIndex(vertices, contourTree, e.first);
+        long high = getIndex(vertices, contourTree, e.second);
+        printf("%12ld %12ld\n", min(low, high), max(low, high));
+    }
 
     return 0;
 }

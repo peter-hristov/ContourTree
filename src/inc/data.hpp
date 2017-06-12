@@ -85,6 +85,25 @@ void printTree(const std::vector<std::vector<int>> &data)
 /**
  * Write tree grid to STDIN
  */
+void printTreeNonempty(const std::vector<std::vector<int>> &data)
+{
+    for (int i = 0; i < data.size(); i++)
+    {
+        if (0 == data[i].size()) { continue; }
+
+        std::cout << std::endl << std::setw(4) << i << " - ";
+        for (const auto element : data[i])
+        {
+            std::cout << std::setw(4) << element;
+        }
+    }
+
+    std::cout << std::endl;
+}
+
+/**
+ * Write tree grid to STDIN
+ */
 void printExtremeTree(const std::vector<std::vector<int>> &data)
 {
     for (int i = 0; i < data.size(); i++)
