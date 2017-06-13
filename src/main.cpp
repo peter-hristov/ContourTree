@@ -17,6 +17,17 @@ using namespace std;
 pair<int, int> findCurrent(int current, const vector<vector<int>> &);
 vector<vector<int>> sortVertices(vector<vector<int>>);
 
+int compareHeights(const void *a, const void *b) 
+{ 
+    int i = *(((pair<int, int*>*)a)->second);
+    int j = *(((pair<int, int*>*)b)->second);
+
+    int k = Data::compare(((pair<int, int*>*)a)->second, ((pair<int, int*>*)b)->second);
+
+    //cout << "Comparing " << " " << i << " and " << j << " = " << k << endl;
+    return k;
+}
+
 vector<vector<int>> getJoinTree(const vector<vector<int>> &);
 vector<vector<int>> getSplitTree(const vector<vector<int>> &);
 
@@ -265,6 +276,46 @@ pair<int, int> findCurrent(int current, const vector<vector<int>> &data)
 vector<vector<int>> sortVertices(vector<vector<int>> data)
 {
     std::vector<std::vector<int>> vertices(data.size(), std::vector<int>(data[0].size()));
+
+    // Linearise array in order to sort it
+    vector<pair<int, int *>> elements;
+    for (int x = 0; x < data.size(); x++)
+    {
+        for (int y = 0; y < data[x].size(); y++)
+        {
+            int index = x * data[0].size() + y;
+            int *value = &data[x][y];
+
+            elements.push_back(make_pair(index, value));
+        }
+    }
+
+
+    //for (int x = 0; x < elements.size(); x++)
+    //{
+        //cout << x << " , " << elements[x].first << " - " << *elements[x].second << endl;
+    //}
+
+    //sort(elements.begin(), elements.end(), [](pair<int, int *> a, pair<int, int *> b) { return (Data::compare(a.second, b.second) < 0); });
+    qsort(&elements[0], elements.size(), sizeof elements[0], compareHeights);
+
+    //cout << endl;
+
+    //for (int x = 0; x < elements.size(); x++)
+    //{
+        //cout << x << " , " << elements[x].first << " - " << *elements[x].second << endl;
+    //}
+
+    for (int x = 0; x < elements.size(); x++)
+    {
+        int i = elements[x].first / data[0].size();
+        int j = elements[x].first % data[0].size();
+
+        vertices[i][j] = x;
+    }
+
+    return vertices;
+
 
     for (int x = 0; x < data.size(); x++)
     {
