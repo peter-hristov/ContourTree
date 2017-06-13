@@ -1,13 +1,13 @@
 // Copyright 2017 Peter Hristov
 #include <algorithm>
+#include <assert.h>
 #include <iomanip>
 #include <iostream>
 #include <limits>
-#include <vector>
-#include <assert.h>
 #include <set>
-#include <stdlib.h>     /* srand, rand */
-#include <time.h>       /* time */
+#include <stdlib.h> /* srand, rand */
+#include <time.h>   /* time */
+#include <vector>
 
 #include "./inc/data.hpp"
 #include "./inc/disjoint_set.hpp"
@@ -20,21 +20,15 @@ vector<vector<int>> sortVertices(vector<vector<int>>);
 vector<vector<int>> getJoinTree(const vector<vector<int>> &);
 vector<vector<int>> getSplitTree(const vector<vector<int>> &);
 
-bool isThere(vector<pair<int, int>> edges, pair<int, int> p)
-{
-    for (auto e: edges)
-    {
-        if ((e.first == p.first && e.second == p.second) || (e.first == p.second && e.second == p.first))
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
+bool isThere(vector<pair<int, int>>, pair<int, int>);
 
 int getIndex(vector<vector<int>> vertices, vector<vector<int>> contourTree, int i)
 {
+    if (-1 == i)
+    {
+        return -1;
+    }
+
     pair<int, int> p = findCurrent(i, vertices);
 
     return (p.first * vertices[0].size() + p.second);
@@ -88,38 +82,32 @@ int main()
 
     vector<vector<int>> data = Data::read();
     vector<vector<int>> vertices = sortVertices(data);
-    
 
-    //cout << "\nData : ";
-    //Data::print(data);
-    //cout << "\nVertices : ";
-    //Data::print(vertices);
+    // @TODO Write a routine that checks if sorting is done correctly
+    // @TODO Get the Join/Split tree to work
+
+    // cout << "\nData : ";
+    // Data::print(data);
+    // cout << "\nVertices : ";
+    // Data::print(vertices);
 
     auto joinTree = getJoinTree(vertices);
-
     auto splitTree = getSplitTree(vertices);
 
-    //Data::print(splitTree);
+    // for (const auto row : joinTree)
+    //{
+    // for (const auto element : row)
+    //{
+    // long a = element;
+    // long blq = getIndex(vertices, vertices, a);
+    // printf("%9ld", blq);
+    //}
+    // std::cout << std::endl;
+    //}
 
-    //long low = getIndex(vertices, contourTree, e.first);
+    // return 0;
 
-    //std::cout << std::endl << std::endl << splitTree.size() << " " << (*splitTree.begin()).size();
-
-    for (const auto row : splitTree)
-    {
-        for (const auto element : row)
-        {
-            long a = element;
-            long blq = getIndex(vertices, vertices, a);
-            printf("%9ld", blq);
-        }
-        std::cout << std::endl;
-    }
-
-    return 0;
-
-    //auto splitTree = getSplitTree(vertices);
-
+    // auto splitTree = getSplitTree(vertices);
 
     // cout << "\nJoin Tree :";
     // Data::printTree(joinTree);
@@ -165,15 +153,20 @@ int main()
         {
             assert(joinTree[i].size() == 1);
 
-            if (debug) { cout << "+ Up   leaf" << endl; }
+            if (debug)
+            {
+                cout << "+ Up   leaf" << endl;
+            }
             j = joinTree[i][0];
-
         }
         else if (1 == getUpDegree(joinTree, i) && 0 == getDownDegree(splitTree, i))
         {
             assert(splitTree[i].size() == 1);
 
-            if (debug) { cout << "- Down leaf" << endl; }
+            if (debug)
+            {
+                cout << "- Down leaf" << endl;
+            }
             j = splitTree[i][0];
         }
         else if (0 == getUpDegree(joinTree, i) && 0 == getDownDegree(splitTree, i))
@@ -185,7 +178,10 @@ int main()
             assert(false);
         }
 
-        if (debug) { cout << "Neighbour   : " << j << endl; }
+        if (debug)
+        {
+            cout << "Neighbour   : " << j << endl;
+        }
 
         // Add edge to controur tree
         contourTree[i].push_back(j);
@@ -212,7 +208,7 @@ int main()
     }
 
     // Remove augmentation
-    for (int i = 0 ; i < contourTree.size() ; i++)
+    for (int i = 0; i < contourTree.size(); i++)
     {
         if (1 == getUpDegree(contourTree, i) && 1 == getDownDegree(contourTree, i))
         {
@@ -220,13 +216,13 @@ int main()
         }
     }
 
-    //cout << "\n\nContour Tree : " << endl;
-    //Data::printTreeNonempty(contourTree);
+    // cout << "\n\nContour Tree : " << endl;
+    // Data::printTreeNonempty(contourTree);
 
     vector<pair<int, int>> edges;
     for (int i = 0; i < contourTree.size(); i++)
     {
-        for(auto j: contourTree[i])
+        for (auto j : contourTree[i])
         {
             if (!isThere(edges, make_pair(i, j)))
             {
@@ -234,7 +230,6 @@ int main()
             }
         }
     }
-
 
     for (const auto e : edges)
     {
@@ -281,7 +276,8 @@ vector<vector<int>> sortVertices(vector<vector<int>> data)
             {
                 for (int j = 0; j < data[i].size(); j++)
                 {
-                    if (data[i][j] < data[max.first][max.second])
+                    // if (data[i][j] < data[max.first][max.second])
+                    if (Data::compare(&data[i][j], &data[max.first][max.second]) < 0)
                     {
                         max = make_pair(i, j);
                     }
@@ -308,6 +304,7 @@ vector<vector<int>> getJoinTree(const vector<vector<int>> &vertices)
         lowestVertex.push_back(i);
     }
 
+    // vector<vector<int>> joinTree(vertices.size() * vertices[0].size());
     vector<vector<int>> joinTree(vertices.size() * vertices[0].size());
 
     for (int i = vertices.size() * vertices[0].size() - 1; i >= 0; i--)
@@ -317,27 +314,39 @@ vector<vector<int>> getJoinTree(const vector<vector<int>> &vertices)
 
         // Get the neighbours of the current vertex
         auto n = Data::getAdjacent(currentPosition.first, currentPosition.second, vertices.size(), vertices[0].size());
+
+        // cout << endl;
         for (pair<int, int> a : n)
         {
+            // Get value at vertex
             int j = vertices[a.first][a.second];
 
+            // Check if it's lower or if they are in the same component already
             if (j < i || ds.find(i) == ds.find(j))
             {
                 continue;
             }
 
+            // Merge components
             ds.merge(i, j);
+
+            // Add edge to join tree
+            // pair<int, int> pos = findCurrent(lowestVertex[ds.find(i)], vertices);
+            // joinTree[pos.first][pos.second] = i;
 
             joinTree[i].push_back(lowestVertex[ds.find(j)]);
             joinTree[lowestVertex[ds.find(j)]].push_back(i);
-
-            // Lowest vertex in the whole component is now i
-            lowestVertex[ds.find(j)] = i;
         }
+
+        // Lowest vertex in the whole new component is now i
+        lowestVertex[ds.find(i)] = i;
     }
 
-    // return joinTree;
     return joinTree;
+
+    // joinTree[i].push_back(lowestVertex[ds.find(j)]);
+    // joinTree[lowestVertex[ds.find(j)]].push_back(i);
+    // return joinTree;
 }
 
 vector<vector<int>> getSplitTree(const vector<vector<int>> &vertices)
@@ -351,16 +360,19 @@ vector<vector<int>> getSplitTree(const vector<vector<int>> &vertices)
         highestVertex.push_back(i);
     }
 
-    //vector<vector<int>> splitTree(vertices.size() * vertices[0].size());
-    vector<vector<int>> splitTree(vertices.size(), vector<int>(vertices[0].size()));
+    vector<vector<int>> splitTree(vertices.size() * vertices[0].size());
+    // vector<vector<int>> splitTree(vertices.size(), vector<int>(vertices[0].size()));
 
     for (int i = 0; i < vertices.size() * vertices[0].size(); i++)
     {
         // Get coordinates of the current vertex
         pair<int, int> currentPosition = findCurrent(i, vertices);
 
+        highestVertex[i] = i;
+
         // Get the neighbours of the current vertex
         auto n = Data::getAdjacent(currentPosition.first, currentPosition.second, vertices.size(), vertices[0].size());
+
         for (pair<int, int> a : n)
         {
             int j = vertices[a.first][a.second];
@@ -372,12 +384,11 @@ vector<vector<int>> getSplitTree(const vector<vector<int>> &vertices)
 
             ds.merge(i, j);
 
-            //splitTree[i].push_back(highestVertex[ds.find(j)]);
-            //splitTree[highestVertex[ds.find(j)]].push_back(i);
-            
-            pair<int, int> pos = findCurrent(highestVertex[ds.find(j)], vertices);
+            splitTree[i].push_back(highestVertex[ds.find(j)]);
+            splitTree[highestVertex[ds.find(j)]].push_back(i);
 
-            splitTree[pos.first][pos.second] = i;
+            // pair<int, int> pos = findCurrent(highestVertex[ds.find(j)], vertices);
+            // splitTree[pos.first][pos.second] = i;
 
             // Highest vertex in the whole component is now i
             highestVertex[ds.find(j)] = i;
@@ -385,4 +396,17 @@ vector<vector<int>> getSplitTree(const vector<vector<int>> &vertices)
     }
 
     return splitTree;
+}
+
+bool isThere(vector<pair<int, int>> edges, pair<int, int> p)
+{
+    for (auto e : edges)
+    {
+        if ((e.first == p.first && e.second == p.second) || (e.first == p.second && e.second == p.first))
+        {
+            return true;
+        }
+    }
+
+    return false;
 }

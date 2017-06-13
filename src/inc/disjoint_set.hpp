@@ -9,6 +9,7 @@
 // Vertex data structure used by RTF
 class DisjointSet
 {
+    // <value, parent>
     std::vector<std::pair<int, int>> nodes;
 
   public:
@@ -19,19 +20,12 @@ class DisjointSet
 
     int find(int i)
     {
-        int p = nodes[i].second;
-
-        if (p == i)
+        if (nodes[i].second != i)
         {
-            return p;
+            nodes[i].second = find(nodes[i].second);
         }
 
-        int root = find(p);
-
-        // Path compression
-        nodes[i].second = root;
-
-        return root;
+        return nodes[i].second;
     }
 
     void merge(int i, int j)
