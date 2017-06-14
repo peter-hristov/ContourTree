@@ -14,6 +14,8 @@
 
 using namespace std;
 
+vector<pair<int, int>> sortedVertices;
+
 pair<int, int> findCurrent(int current, const vector<vector<int>> &);
 vector<vector<int>> sortVertices(vector<vector<int>>);
 
@@ -110,11 +112,7 @@ int main(int argc, char *argv[])
     bool debug = false;
 
     vector<vector<int>> data = Data::read();
-
     vector<vector<int>> vertices = sortVertices(data);
-
-    // @TODO Write a routine that checks if sorting is done correctly
-    // @TODO Get the Join/Split tree to work
 
     // cout << "\nData : ";
     // Data::print(data);
@@ -123,19 +121,6 @@ int main(int argc, char *argv[])
 
     auto joinTree = getJoinTree(vertices, data);
     auto splitTree = getSplitTree(vertices);
-
-    // for (const auto row : joinTree)
-    //{
-    // for (const auto element : row)
-    //{
-    // long a = element;
-    // long blq = getIndex(vertices, vertices, a);
-    // printf("%9ld", blq);
-    //}
-    // std::cout << std::endl;
-    //}
-
-    // return 0;
 
     // cout << "\nJoin Tree :";
     // Data::printTree(joinTree);
@@ -244,9 +229,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    // cout << "\n\nContour Tree : " << endl;
-    // Data::printTreeNonempty(contourTree);
-
+    // Convert to edges from other format
     vector<pair<int, int>> edges;
     for (int i = 0; i < contourTree.size(); i++)
     {
@@ -317,9 +300,9 @@ vector<vector<int>> sortVertices(vector<vector<int>> data)
 
     // cout << endl;
 
-    // for (int x = 0; x < elements.size(); x++)
+    //for (int x = 0; x < elements.size(); x++)
     //{
-    // cout << x << " , " << elements[x].first << " - " << *elements[x].second << endl;
+        //cout << x << " , " << elements[x].first << " - " << *elements[x].second << endl;
     //}
 
     for (int x = 0; x < elements.size(); x++)
@@ -327,10 +310,14 @@ vector<vector<int>> sortVertices(vector<vector<int>> data)
         int i = elements[x].first / data[0].size();
         int j = elements[x].first % data[0].size();
 
+        sortedVertices.push_back(make_pair(i, j));
+
         vertices[i][j] = x;
     }
 
     return vertices;
+
+    // Dead Weight
 
     for (int x = 0; x < data.size(); x++)
     {
@@ -376,7 +363,8 @@ vector<vector<int>> getJoinTree(const vector<vector<int>> &vertices, const vecto
     for (int i = vertices.size() * vertices[0].size() - 1; i >= 0; i--)
     {
         // Get coordinates of the current vertex
-        pair<int, int> currentPosition = findCurrent(i, vertices);
+        //pair<int, int> currentPosition = findCurrent(i, vertices);
+        pair<int, int> currentPosition = sortedVertices[i];
 
         double value = (double)(data[currentPosition.first][currentPosition.second] * 1.0);
 
@@ -385,6 +373,8 @@ vector<vector<int>> getJoinTree(const vector<vector<int>> &vertices, const vecto
 
         // Get the neighbours of the current vertex
         auto n = Data::getAdjacent(currentPosition.first, currentPosition.second, vertices.size(), vertices[0].size());
+
+        //cout << "Currently at : " << i << endl;
 
         // cout << endl;
         for (pair<int, int> a : n)
@@ -437,7 +427,8 @@ vector<vector<int>> getSplitTree(const vector<vector<int>> &vertices)
     for (int i = 0; i < vertices.size() * vertices[0].size(); i++)
     {
         // Get coordinates of the current vertex
-        pair<int, int> currentPosition = findCurrent(i, vertices);
+        //pair<int, int> currentPosition = findCurrent(i, vertices);
+        pair<int, int> currentPosition = sortedVertices[i];
 
         highestVertex[i] = i;
 
