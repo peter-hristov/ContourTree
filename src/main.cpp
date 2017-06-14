@@ -106,6 +106,28 @@ void generateRandomData(int maxI, int maxJ, int maxVal)
 
 int main(int argc, char *argv[])
 {
+
+
+    //DisjointSet ds;
+
+    //for(int i = 0 ; i < 10 ; i++)
+    //{
+        //ds.add(i);
+    //}
+
+    //ds.merge(0, 1);
+    //ds.merge(1, 5);
+    //ds.merge(9, 8);
+
+
+    //ds.merge(9, 0);
+
+    //ds.find(1);
+
+    //ds.print();
+
+
+    //return 0;
     //generateRandomData(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]));
 
     bool debug = false;
@@ -138,10 +160,10 @@ int main(int argc, char *argv[])
 
     //return 0;
 
-    // cout << "\nJoin Tree :";
-    // Data::printTree(joinTree);
-    // cout << "\nSplit Tree :";
-    // Data::printTree(splitTree);
+     cout << "\nJoin Tree :";
+     Data::printTree(joinTree);
+     cout << "\nSplit Tree :";
+     Data::printTree(splitTree);
 
     vector<int> q;
 
@@ -401,15 +423,15 @@ vector<vector<int>> getJoinTree(const vector<vector<int>> &vertices, const vecto
                 continue;
             }
 
-            // Merge components
-            ds.merge(i, j);
-
             // Add edge to join tree
             //pair<int, int> pos = findCurrent(lowestVertex[ds.find(i)], vertices);
             //joinTree[pos.first][pos.second] = i;
 
             joinTree[i].push_back(lowestVertex[ds.find(j)]);
             joinTree[lowestVertex[ds.find(j)]].push_back(i);
+
+            // Merge components
+            ds.merge(i, j);
         }
 
         // Lowest vertex in the whole new component is now i
@@ -456,7 +478,6 @@ vector<vector<int>> getSplitTree(const vector<vector<int>> &vertices)
                 continue;
             }
 
-            ds.merge(i, j);
 
             splitTree[i].push_back(highestVertex[ds.find(j)]);
             splitTree[highestVertex[ds.find(j)]].push_back(i);
@@ -465,8 +486,11 @@ vector<vector<int>> getSplitTree(const vector<vector<int>> &vertices)
             // splitTree[pos.first][pos.second] = i;
 
             // Highest vertex in the whole component is now i
-            highestVertex[ds.find(j)] = i;
+
+            ds.merge(i, j);
         }
+
+        highestVertex[ds.find(i)] = i;
     }
 
     return splitTree;

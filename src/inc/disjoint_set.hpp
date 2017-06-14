@@ -15,7 +15,7 @@ class DisjointSet
   public:
     void add(int value)
     {
-        this->nodes.push_back(std::make_pair(value, this->nodes.size()));
+        this->nodes.push_back(std::make_pair(0, this->nodes.size()));
     }
 
     int find(int i)
@@ -34,7 +34,24 @@ class DisjointSet
         int rootI = find(i);
         int rootJ = find(j);
 
-        nodes[rootI].second = rootJ;
+        if (rootI == rootJ)
+        {
+            return;
+        }
+
+        if (nodes[rootI].first < nodes[rootJ].first)
+        {
+            nodes[rootI].second = rootJ;
+        }
+        if (nodes[rootI].first > nodes[rootJ].first)
+        {
+            nodes[rootJ].second = rootI;
+        }
+        else
+        {
+            nodes[rootI].second = rootJ;
+            nodes[rootJ].first++;
+        }
     }
 
     void print()
