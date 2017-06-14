@@ -33,11 +33,6 @@ class DisjointSet
         int rootI = find(i);
         int rootJ = find(j);
 
-        // nodes[rootI].second = rootJ;
-        // nodes[rootJ].second = rootI;
-
-        // return;
-
         if (rootI == rootJ)
         {
             return;

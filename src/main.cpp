@@ -106,27 +106,7 @@ void generateRandomData(int maxI, int maxJ, int maxVal)
 
 int main(int argc, char *argv[])
 {
-
-    // DisjointSet ds;
-
-    // for(int i = 0 ; i < 10 ; i++)
-    //{
-    // ds.add(i);
-    //}
-
-    // ds.merge(0, 1);
-    // ds.merge(1, 5);
-    // ds.merge(9, 8);
-
-    // ds.merge(9, 0);
-
-    // ds.find(1);
-
-    // ds.print();
-
-    // return 0;
     // generateRandomData(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]));
-
     bool debug = false;
 
     vector<vector<int>> data = Data::read();
