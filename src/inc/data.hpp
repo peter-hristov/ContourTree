@@ -13,15 +13,15 @@ namespace Data
  */
 std::vector<std::vector<int>> read()
 {
-    int width, height;
+    int maxI, maxJ;
 
-    std::cin >> width >> height;
+    std::cin >> maxI >> maxJ;
 
-    std::vector<std::vector<int>> data(width, std::vector<int>(height));
+    std::vector<std::vector<int>> data(maxI, std::vector<int>(maxJ));
 
-    for (int i = 0; i < width; i++)
+    for (int i = 0; i < maxI; i++)
     {
-        for (int j = 0; j < height; j++)
+        for (int j = 0; j < maxJ; j++)
         {
             std::cin >> data[i][j];
         }
@@ -42,7 +42,7 @@ void print(const std::vector<std::vector<int>> &data)
         std::cout << std::endl;
         for (const auto element : row)
         {
-            // std::cout << std::setw(4) << element;
+            //std::cout << std::setw(4) << element;
 
             long a = element;
             printf("%9ld", a);
@@ -92,10 +92,7 @@ void printTreeNonempty(const std::vector<std::vector<int>> &data)
 {
     for (int i = 0; i < data.size(); i++)
     {
-        if (0 == data[i].size())
-        {
-            continue;
-        }
+        if (0 == data[i].size()) { continue; }
 
         std::cout << std::endl << std::setw(4) << i << " - ";
         for (const auto element : data[i])
@@ -163,7 +160,8 @@ std::vector<std::pair<int, int>> getAdjacent(int i, int j, int h, int w)
     return n;
 }
 
-/** Perform a compare with a tiny pertubation
+/**
+ * Perform a compare with a tiny pertubation
  */
 int compare(int *a, int *b)
 {

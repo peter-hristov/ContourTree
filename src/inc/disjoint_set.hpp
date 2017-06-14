@@ -20,13 +20,14 @@ class DisjointSet
 
     int find(int i)
     {
-        if (nodes[i].second != i)
+        if (nodes[i].second != i )
         {
             nodes[i].second = find(nodes[i].second);
         }
 
         return nodes[i].second;
     }
+
 
     void merge(int i, int j)
     {

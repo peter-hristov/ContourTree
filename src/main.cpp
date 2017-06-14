@@ -28,7 +28,7 @@ int compareHeights(const void *a, const void *b)
     return k;
 }
 
-vector<vector<int>> getJoinTree(const vector<vector<int>> &);
+vector<vector<int>> getJoinTree(const vector<vector<int>> &, const vector<vector<int>> &);
 vector<vector<int>> getSplitTree(const vector<vector<int>> &);
 
 bool isThere(vector<pair<int, int>>, pair<int, int>);
@@ -87,11 +87,31 @@ void contractVertex(vector<vector<int>> &tree, int vertex)
     tree[vertex].clear();
 }
 
-int main()
+void generateRandomData(int maxI, int maxJ, int maxVal)
 {
+    srand (time(NULL));
+
+    cout << maxI << " " << maxJ << endl;
+
+    for (int i = 0 ; i < maxI ; i++)
+    {
+        for (int j = 0 ; j < maxJ ; j++)
+        {
+            cout << rand() % maxVal << " ";
+        }
+
+        cout << endl;
+    }
+}
+
+int main(int argc, char *argv[])
+{
+    //generateRandomData(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]));
+
     bool debug = false;
 
     vector<vector<int>> data = Data::read();
+
     vector<vector<int>> vertices = sortVertices(data);
 
     // @TODO Write a routine that checks if sorting is done correctly
@@ -102,23 +122,21 @@ int main()
     // cout << "\nVertices : ";
     // Data::print(vertices);
 
-    auto joinTree = getJoinTree(vertices);
+    auto joinTree = getJoinTree(vertices, data);
     auto splitTree = getSplitTree(vertices);
 
-    // for (const auto row : joinTree)
+    //for (const auto row : joinTree)
     //{
-    // for (const auto element : row)
-    //{
-    // long a = element;
-    // long blq = getIndex(vertices, vertices, a);
-    // printf("%9ld", blq);
-    //}
-    // std::cout << std::endl;
+        //for (const auto element : row)
+        //{
+            //long a = element;
+            //long blq = getIndex(vertices, vertices, a);
+            //printf("%9ld", blq);
+        //}
+        //std::cout << std::endl;
     //}
 
-    // return 0;
-
-    // auto splitTree = getSplitTree(vertices);
+    //return 0;
 
     // cout << "\nJoin Tree :";
     // Data::printTree(joinTree);
@@ -344,7 +362,7 @@ vector<vector<int>> sortVertices(vector<vector<int>> data)
     return vertices;
 }
 
-vector<vector<int>> getJoinTree(const vector<vector<int>> &vertices)
+vector<vector<int>> getJoinTree(const vector<vector<int>> &vertices, const vector<vector<int>> &data)
 {
     DisjointSet ds;
     vector<int> lowestVertex;
@@ -355,13 +373,18 @@ vector<vector<int>> getJoinTree(const vector<vector<int>> &vertices)
         lowestVertex.push_back(i);
     }
 
-    // vector<vector<int>> joinTree(vertices.size() * vertices[0].size());
-    vector<vector<int>> joinTree(vertices.size() * vertices[0].size());
+     vector<vector<int>> joinTree(vertices.size() * vertices[0].size());
+    //vector<vector<int>> joinTree(vertices.size(), vector<int>(vertices[0].size(), -1));
 
     for (int i = vertices.size() * vertices[0].size() - 1; i >= 0; i--)
     {
         // Get coordinates of the current vertex
         pair<int, int> currentPosition = findCurrent(i, vertices);
+
+        double value = (double) (data[currentPosition.first][currentPosition.second] * 1.0);
+
+        //cout << "(" << currentPosition.first << ", " << currentPosition.second << ") - " << value << endl;
+        //printf("(%d, %d) - %f\n", currentPosition.first, currentPosition.second, value);
 
         // Get the neighbours of the current vertex
         auto n = Data::getAdjacent(currentPosition.first, currentPosition.second, vertices.size(), vertices[0].size());
@@ -382,8 +405,8 @@ vector<vector<int>> getJoinTree(const vector<vector<int>> &vertices)
             ds.merge(i, j);
 
             // Add edge to join tree
-            // pair<int, int> pos = findCurrent(lowestVertex[ds.find(i)], vertices);
-            // joinTree[pos.first][pos.second] = i;
+            //pair<int, int> pos = findCurrent(lowestVertex[ds.find(i)], vertices);
+            //joinTree[pos.first][pos.second] = i;
 
             joinTree[i].push_back(lowestVertex[ds.find(j)]);
             joinTree[lowestVertex[ds.find(j)]].push_back(i);
