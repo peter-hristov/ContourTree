@@ -15,12 +15,12 @@ class DisjointSet
   public:
     void add(int value)
     {
-        this->nodes.push_back(std::make_pair(value, this->nodes.size()));
+        this->nodes.push_back(std::make_pair(0, this->nodes.size()));
     }
 
     int find(int i)
     {
-        if (nodes[i].second != i )
+        if (nodes[i].second != i)
         {
             nodes[i].second = find(nodes[i].second);
         }
@@ -28,13 +28,34 @@ class DisjointSet
         return nodes[i].second;
     }
 
-
     void merge(int i, int j)
     {
         int rootI = find(i);
         int rootJ = find(j);
 
-        nodes[rootI].second = rootJ;
+        // nodes[rootI].second = rootJ;
+        // nodes[rootJ].second = rootI;
+
+        // return;
+
+        if (rootI == rootJ)
+        {
+            return;
+        }
+
+        if (nodes[rootI].first < nodes[rootJ].first)
+        {
+            nodes[rootI].second = rootJ;
+        }
+        if (nodes[rootI].first > nodes[rootJ].first)
+        {
+            nodes[rootJ].second = rootI;
+        }
+        else
+        {
+            nodes[rootI].second = rootJ;
+            nodes[rootJ].first++;
+        }
     }
 
     void print()
