@@ -3,10 +3,31 @@
 
 #include <iomanip>
 #include <iostream>
+#include <time.h> /* time */
 #include <vector>
 
 namespace Data
 {
+
+/**
+ * Generate random data grid.
+ */
+void generateRandomData(int maxI, int maxJ, int maxVal)
+{
+    srand(time(NULL));
+
+    std::cout << maxI << " " << maxJ << std::endl;
+
+    for (int i = 0; i < maxI; i++)
+    {
+        for (int j = 0; j < maxJ; j++)
+        {
+            std::cout << rand() % maxVal << " ";
+        }
+
+        std::cout << std::endl;
+    }
+}
 
 /**
  * Read data grid from STDIN
