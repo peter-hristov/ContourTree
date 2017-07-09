@@ -86,7 +86,8 @@ std::vector<std::pair<int, int>> convertToEdges(const std::vector<std::vector<in
     {
         for (auto j : contourTree[i])
         {
-            if (!isThere(edges, std::make_pair(i, j)))
+            //if (!isThere(edges, std::make_pair(i, j)))
+            if (i < j)
             {
                 edges.push_back(std::make_pair(i, j));
             }

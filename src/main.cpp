@@ -15,6 +15,8 @@ using namespace std;
 
 vector<pair<int, int>> sortedVertices;
 
+vector<int> vertexMap;
+
 int getIndex(vector<vector<int>> vertices, vector<vector<int>>, int);
 
 pair<int, int> findCurrent(int current, const vector<vector<int>> &);
@@ -58,8 +60,12 @@ int main(int argc, char *argv[])
 
     for (const auto e : edges)
     {
-        long low = getIndex(vertices, contourTree, e.first);
-        long high = getIndex(vertices, contourTree, e.second);
+        //long low = getIndex(vertices, contourTree, e.first);
+        //long high = getIndex(vertices, contourTree, e.second);
+
+        long low = vertexMap[e.first];
+        long high = vertexMap[e.second];
+
         printf("%12ld %12ld\n", min(low, high), max(low, high));
     }
 
@@ -124,6 +130,8 @@ vector<vector<int>> sortVertices(vector<vector<int>> data)
         int j = elements[x].first % data[0].size();
 
         sortedVertices.push_back(make_pair(i, j));
+
+        vertexMap.push_back(elements[x].first);
 
         vertices[i][j] = x;
     }
