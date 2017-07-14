@@ -58,6 +58,14 @@ int main(int argc, char *argv[])
     // Conver to edge list format
     auto edges = ContourTree::convertToEdges(contourTree);
 
+    //cout << vertexMap.size() << endl << endl;
+
+    //for (int i = vertexMap.size() - 1 ; i >= 0; i--)
+    //{
+        //cout << i << " " << vertexMap[i] << endl;
+        //cout << i << " " << i << endl;
+    //}
+
     for (const auto e : edges)
     {
         //long low = getIndex(vertices, contourTree, e.first);
@@ -65,6 +73,9 @@ int main(int argc, char *argv[])
 
         long low = vertexMap[e.first];
         long high = vertexMap[e.second];
+        
+        //long low = e.first;
+        //long high = e.second;
 
         printf("%12ld %12ld\n", min(low, high), max(low, high));
     }
