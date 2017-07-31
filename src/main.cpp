@@ -24,8 +24,28 @@ vector<vector<int>> sortVertices(vector<vector<int>>);
 
 int main(int argc, char *argv[])
 {
-    // generateRandomData(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]));
+    //Data::generateRandomData(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]));
     bool debug = false;
+    
+    int maxI = 100, maxJ = 100;
+
+    //srand(time(NULL));
+    //vector<vector<int>> data(maxI, vector<int>(maxJ));
+
+    ////std::cout << 3 << " " << 3 << std::endl;
+
+    //for (int i = 0; i < maxI; i++)
+    //{
+        //cout << "// ";
+        //for (int j = 0; j < maxJ; j++)
+        //{
+            ////std::cout << rand() % 100 << " ";
+            //data[i][j] = rand() % 100;
+            //cout << data[i][j] << " ";
+        //}
+
+        //std::cout << std::endl;
+    //}
 
     vector<vector<int>> data = Data::read();
     vector<vector<int>> vertices = sortVertices(data);
@@ -53,7 +73,7 @@ int main(int argc, char *argv[])
     vector<vector<int>> contourTree = ContourTree::getContourTree(joinTree, splitTree, debug);
 
     // Remove augmentation
-    ContourTree::removeAugmentation(contourTree);
+    //ContourTree::removeAugmentation(contourTree);
 
     // Conver to edge list format
     auto edges = ContourTree::convertToEdges(contourTree);
@@ -66,19 +86,23 @@ int main(int argc, char *argv[])
         //cout << i << " " << i << endl;
     //}
 
+
+    cout << "graph contourTree { rankdir = BT; " << endl;
     for (const auto e : edges)
     {
         //long low = getIndex(vertices, contourTree, e.first);
         //long high = getIndex(vertices, contourTree, e.second);
 
-        long low = vertexMap[e.first];
-        long high = vertexMap[e.second];
+        //long low = vertexMap[e.first];
+        //long high = vertexMap[e.second];
         
-        //long low = e.first;
-        //long high = e.second;
+        long low = e.first;
+        long high = e.second;
 
-        printf("%12ld %12ld\n", min(low, high), max(low, high));
+        printf("%12ld -- %12ld\n", min(low, high), max(low, high));
     }
+
+    cout << " }";
 
     return 0;
 }
