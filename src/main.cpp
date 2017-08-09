@@ -13,8 +13,10 @@
 
 using namespace std;
 
+// Keeps the vertices in a sorted order.
 vector<pair<int, int>> sortedVertices;
 
+// Maps vertices indicex to the height index.
 vector<int> vertexMap;
 
 int getIndex(vector<vector<int>> vertices, vector<vector<int>>, int);
@@ -22,31 +24,14 @@ int getIndex(vector<vector<int>> vertices, vector<vector<int>>, int);
 pair<int, int> findCurrent(int current, const vector<vector<int>> &);
 vector<vector<int>> sortVertices(vector<vector<int>>);
 
+void printDot(vector<pair<int, int>>);
+void printCT(vector<pair<int, int>>, vector<int>);
+
 int main(int argc, char *argv[])
 {
     //Data::generateRandomData(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]));
     bool debug = false;
     
-    int maxI = 100, maxJ = 100;
-
-    //srand(time(NULL));
-    //vector<vector<int>> data(maxI, vector<int>(maxJ));
-
-    ////std::cout << 3 << " " << 3 << std::endl;
-
-    //for (int i = 0; i < maxI; i++)
-    //{
-        //cout << "// ";
-        //for (int j = 0; j < maxJ; j++)
-        //{
-            ////std::cout << rand() % 100 << " ";
-            //data[i][j] = rand() % 100;
-            //cout << data[i][j] << " ";
-        //}
-
-        //std::cout << std::endl;
-    //}
-
     vector<vector<int>> data = Data::read();
     vector<vector<int>> vertices = sortVertices(data);
 
@@ -78,24 +63,17 @@ int main(int argc, char *argv[])
     // Conver to edge list format
     auto edges = ContourTree::convertToEdges(contourTree);
 
-    //cout << vertexMap.size() << endl << endl;
+    //printCT(edges, vertexMap);
+    //printDot(edges);
 
-    //for (int i = vertexMap.size() - 1 ; i >= 0; i--)
-    //{
-        //cout << i << " " << vertexMap[i] << endl;
-        //cout << i << " " << i << endl;
-    //}
+    return 0;
+}
 
-
-    cout << "graph contourTree { rankdir = BT; " << endl;
+void printDot(vector<pair<int, int>> edges)
+{
+    cout << "graph contourTree { " << endl << " rankdir = BT; " << endl;
     for (const auto e : edges)
     {
-        //long low = getIndex(vertices, contourTree, e.first);
-        //long high = getIndex(vertices, contourTree, e.second);
-
-        //long low = vertexMap[e.first];
-        //long high = vertexMap[e.second];
-        
         long low = e.first;
         long high = e.second;
 
@@ -103,8 +81,28 @@ int main(int argc, char *argv[])
     }
 
     cout << " }";
+}
 
-    return 0;
+void printCT(vector<pair<int, int>> edges, vector<int> vectexMap)
+{
+    cout << vertexMap.size() << endl << endl;
+
+    for (int i = vertexMap.size() - 1 ; i >= 0; i--)
+    {
+        cout << i << " " << vertexMap[i] << endl;
+    }
+
+    for (const auto e : edges)
+    {
+        // Old Slow Way
+        //long low = getIndex(vertices, contourTree, e.first);
+        //long high = getIndex(vertices, contourTree, e.second);
+
+        long low = vertexMap[e.first];
+        long high = vertexMap[e.second];
+        
+        printf("%12ld %12ld\n", min(low, high), max(low, high));
+    }
 }
 
 /**
